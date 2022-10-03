@@ -1,11 +1,12 @@
 module kernel.mmio;
 
 import core.bitop;
+import core.stdc.stdint;
+import std.typecons;
 
 const base = 0x3f000000;
 
-import stdint = core.stdc.stdint;
-alias ptr = stdint.uintptr_t;
+alias ptr = Typedef!(uintptr_t);
 
 void sti(T)(ptr ptr, uint i, T value) {
     volatileStore(cast(T*)ptr + i, value);
