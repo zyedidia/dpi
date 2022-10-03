@@ -4,8 +4,8 @@ import core.bitop;
 
 const base = 0x3f000000;
 
-import core.stdc.stdint;
-alias ptr = uintptr_t;
+import stdint = core.stdc.stdint;
+alias ptr = stdint.uintptr_t;
 
 void sti(T)(ptr ptr, uint i, T value) {
     volatileStore(cast(T*)ptr + i, value);
