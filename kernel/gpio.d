@@ -2,6 +2,13 @@ module kernel.gpio;
 
 import mmio = kernel.mmio;
 
+enum PinType {
+    tx = 14,
+    rx = 15,
+    sda = 2,
+    scl = 3,
+}
+
 enum FuncType {
     input = 0,
     output = 1,
@@ -14,10 +21,11 @@ enum FuncType {
 }
 
 const uint base = 0x200000;
-const mmio.ptr fsel = mmio.base + base;
-const mmio.ptr set = mmio.base + base + 0x1C;
-const mmio.ptr clr = mmio.base + base + 0x28;
-const mmio.ptr lev = mmio.base + base + 0x34;
+
+private uint* fsel() { return cast(uint*) (mmio.base + base); }
+private uint* set()  { return cast(uint*) (mmio.base + base + 0x1C); }
+private uint* clr()  { return cast(uint*) (mmio.base + base + 0x28); }
+private uint* lev()  { return cast(uint*) (mmio.base + base + 0x34); }
 
 void set_func(uint pin, FuncType fn) {
     if (pin >= 32)
@@ -25,10 +33,10 @@ void set_func(uint pin, FuncType fn) {
     uint off = (pin % 10) * 3;
     uint idx = pin / 10;
 
-    uint v = mmio.ldi!uint(fsel, idx);
+    uint v = mmio.ld(fsel() + idx);
     v &= ~(0b111 << off);
     v |= fn << off;
-    mmio.sti!uint(fsel, idx, v);
+    mmio.st(fsel() + idx, v);
 }
 
 void set_output(uint pin) {
@@ -42,13 +50,13 @@ void set_input(uint pin) {
 void set_on(uint pin) {
     if (pin >= 32)
         return;
-    mmio.st!uint(set, 1 << pin);
+    mmio.st(set(), 1 << pin);
 }
 
 void set_off(uint pin) {
     if (pin >= 32)
         return;
-    mmio.st!uint(clr, 1 << pin);
+    mmio.st(clr(), 1 << pin);
 }
 
 void write(uint pin, bool v) {
@@ -61,5 +69,5 @@ void write(uint pin, bool v) {
 bool read(uint pin) {
     if (pin >= 32)
         return false;
-    return (mmio.ld!uint(lev) >> pin) & 1;
+    return (mmio.ld(lev()) >> pin) & 1;
 }
