@@ -2,15 +2,19 @@ module kernel.main;
 
 import core.bitop;
 
-import gpio = kernel.gpio;
 import timer = kernel.timer;
+import uart = kernel.uart;
+import sys = kernel.sys;
 
 void kmain() {
-    gpio.set_output(21);
-    bool v = true;
-    while (true) {
-        gpio.write(21, v);
-        v = !v;
-        timer.delay_ms(500);
-    }
+    uart.init(115200);
+
+    uart.tx('H');
+    uart.tx('e');
+    uart.tx('l');
+    uart.tx('l');
+    uart.tx('o');
+    uart.tx('\n');
+
+    sys.reboot();
 }
