@@ -1,0 +1,14 @@
+local knit = import("knit")
+local src = knit.glob("*.d")
+
+local kernel = {}
+
+function kernel.rules(tools, flags)
+    local src = src
+    return r{
+    $ kernel.o: $src
+        $(tools.dc) $(flags.dc) $input -c -o $output
+    }
+end
+
+return kernel

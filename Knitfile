@@ -1,0 +1,55 @@
+local archid = "aarch64"
+local prefix = f"$archid-none-elf"
+
+local knit = import("knit")
+local druntime = knit.abs("libd")
+
+local tools = {
+    dc := $prefix-gdc
+    as := $prefix-as
+    ld := $prefix-ld
+    cpp := $prefix-cpp
+    objcopy := $prefix-objcopy
+    objdump := $prefix-objdump
+}
+
+local cpu = "cortex-a72"
+local arch = "armv8-a+crc"
+local O = "s"
+local link = "link.ld"
+
+local flags = {
+    dc := -O$O -g -nostartfiles -fno-druntime -Wa,-mcpu=$cpu -Wa,-march=$arch -I$druntime
+    as := -mcpu=$cpu -march=$arch
+    ld := -T $link --no-warn-rwx-segments
+}
+
+-- Use Ctrl-A x to quit qemu
+local qemu := qemu-system-$archid
+local board := raspi3b
+local gdb := gdb-multiarch
+
+local kernel = include("kernel/build.knit").rules(tools, flags)
+
+return r{
+$ all: kernel.bin
+$ %.o: %.d
+    $(tools.dc) $(flags.dc) $input -c -o $output
+$ %.o: %.s
+    $(tools.cpp) $input | $(tools.as) $(flags.as) -c -o $output
+$ %.bin: %.elf
+    $(tools.objcopy) $input -O binary $output
+$ %.list: %.elf
+    $(tools.objdump) -D $input > $output
+$ %.list: %.o
+    $(tools.objdump) -D $input > $output
+$ kernel/kernel.o: [$kernel][kernel]kernel.o
+$ kernel.elf: kernel/kernel.o dstart.o start.o
+    $(tools.ld) $(flags.ld) $input -o $output
+
+$ qemu:VB: kernel.elf
+    $qemu -M $board -nographic -kernel $input -serial null -serial mon:stdio -no-reboot
+$ qemu-gdb:VB: kernel.elf
+    $qemu -s -S -M $board -nographic -kernel $input -serial null -serial mon:stdio -no-reboot &
+    $gdb -ex "file $input" -ex "target remote localhost:1234"
+}
