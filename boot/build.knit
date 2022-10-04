@@ -7,7 +7,7 @@ function boot.rules(tools, flags)
     local src = src
     return r{
     $ boot.o: $src
-        $(tools.dc) $(flags.dc) -fno-reorder-functions -c $input -o $output
+        $(tools.dc) $(flags.dc) -c $input -o $output
     }
 end
 
