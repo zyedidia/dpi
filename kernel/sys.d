@@ -1,6 +1,6 @@
 module kernel.sys;
 
-version(Raspi)
+version(raspi)
     public import kernel.board.raspi.sys;
 else
     static assert(false, "unknown board");

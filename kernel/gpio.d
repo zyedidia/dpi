@@ -1,6 +1,6 @@
 module kernel.gpio;
 
-version(Raspi)
+version(raspi)
     public import kernel.board.raspi.gpio;
 
 void write(uint pin, bool v) {

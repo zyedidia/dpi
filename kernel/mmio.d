@@ -2,7 +2,7 @@ module kernel.mmio;
 
 import core.bitop;
 
-version(Raspi)
+version(raspi)
     public import kernel.board.raspi.mmio;
 
 void st(uint* ptr, uint value) {

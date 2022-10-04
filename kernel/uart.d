@@ -1,4 +1,5 @@
 module kernel.uart;
 
-version(Raspi)
+version(raspi)
     public import kernel.board.raspi.uart;
+

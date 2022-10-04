@@ -1,5 +1,33 @@
-local archid = "aarch64"
-local prefix = f"$archid-none-elf"
+local conf = dofile("conf.lua")
+
+local platforms = {
+    raspi3b = {
+        mcpu = "cortex-a53",
+        march = "armv8-a",
+        archid = "aarch64",
+        boardid = "raspi",
+    },
+    raspi4b = {
+        mcpu = "cortex-a72",
+        march = "armv8-a+crc",
+        archid = "aarch64",
+        boardid = "raspi",
+    }
+}
+
+local platform = platforms[conf.board]
+
+if platform == nil then
+    print("unknown board: " .. conf.board)
+    return r{}
+end
+
+local prefixes = {
+    aarch64 = "aarch64-none-elf",
+    arm = "arm-none-eabi",
+}
+
+local prefix = prefixes[platform.archid]
 
 local knit = import("knit")
 
@@ -12,34 +40,27 @@ local tools = {
     objdump := $prefix-objdump
 }
 
-local cpu = "cortex-a72"
-local arch = "armv8-a+crc"
 local O = "s"
 local link = "link.ld"
 
-local boardid = "raspi"
-local boardversion = "Raspi"
-local boardmodel = "Raspi3b"
-
 local versions = {
-    f"-fversion=$boardversion",
-    f"-fversion=$boardmodel",
+    f"-fversion=$(platform.boardid)",
+    f"-fversion=$(conf.board)",
 }
 
 local flags = {
-    dc := -O$O -g -nostartfiles -fno-druntime -Wa,-mcpu=$cpu -Wa,-march=$arch $versions -flto
-    as := -mcpu=$cpu -march=$arch
+    dc := -O$O -g -nostartfiles -fno-druntime -Wa,-mcpu=$(platform.mcpu) -Wa,-march=$(platform.march) $versions -flto
+    as := -mcpu=$(platform.mcpu) -march=$(platform.march)
     -- using gdc as linker for LTO
     ld := -T $link -Wl,--no-warn-rwx-segments -flto
 }
 
 -- Use Ctrl-A x to quit qemu
-local qemu := qemu-system-$archid
-local board := raspi3b
+local qemu := qemu-system-$(platform.archid)
 local gdb := gdb-multiarch
 
 local prog = cli.prog or "hello"
-local kernel = dofile("kernel/build.knit").build(archid, boardid)
+local kernel = dofile("kernel/build.knit").build(platform.archid, platform.boardid)
 local main = dofile(f"$prog/build.knit")
 local libd = dofile("libd/build.knit")
 
@@ -68,9 +89,9 @@ $ $prog.elf: $prog/$prog.o kernel/kernel.o libd/libd.o dstart.o start.o
     $(tools.dc) $(flags.dc) $(flags.ld) $input -o $output
 
 $ qemu:VB: $prog.elf
-    $qemu -M $board -nographic -kernel $input -serial null -serial mon:stdio -no-reboot
+    $qemu -M $(conf.board) -nographic -kernel $input -serial null -serial mon:stdio -no-reboot
 $ qemu-gdb:VB: $prog.elf
-    $qemu -s -S -M $board -nographic -kernel $input -serial null -serial mon:stdio -no-reboot &
+    $qemu -s -S -M $(conf.board) -nographic -kernel $input -serial null -serial mon:stdio -no-reboot &
     $gdb -ex "file $input" -ex "target remote localhost:1234"
 
 $ prog:VB: $prog.bin
