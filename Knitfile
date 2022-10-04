@@ -1,6 +1,12 @@
 local conf = dofile("conf.lua")
 
 local platforms = {
+    raspi1ap = {
+        mcpu = "arm1176jzf-s",
+        march = "armv6zk",
+        archid = "arm",
+        boardid = "raspi",
+    },
     raspi3b = {
         mcpu = "cortex-a53",
         march = "armv8-a",
@@ -85,7 +91,7 @@ $ kernel/kernel.o:M: $(kernel.files)
     $(tools.dc) $(flags.dc) $(kernel.packages) $(libd.packages) $input -c -o $output
 $ libd/libd.o:M: $(libd.files)
     $(tools.dc) $(flags.dc) $(libd.packages) $input -c -o $output
-$ $prog.elf: $prog/$prog.o kernel/kernel.o libd/libd.o dstart.o start.o
+$ $prog.elf: $prog/$prog.o kernel/kernel.o libd/libd.o dstart.o arch/$(platform.archid)/start.o
     $(tools.dc) $(flags.dc) $(flags.ld) $input -o $output
 
 $ qemu:VB: $prog.elf
