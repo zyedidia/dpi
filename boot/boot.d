@@ -11,17 +11,17 @@ import sys = kernel.sys;
 enum BootFlags {
     BootStart = 0xFFFF0000,
 
-    GetProgInfo   = 0x11112222,
-    PutProgInfo   = 0x33334444,
+    GetProgInfo = 0x11112222,
+    PutProgInfo = 0x33334444,
 
-    GetCode        = 0x55556666,
-    PutCode        = 0x77778888,
+    GetCode = 0x55556666,
+    PutCode = 0x77778888,
 
-    BootSuccess    = 0x9999AAAA,
-    BootError      = 0xBBBBCCCC,
+    BootSuccess = 0x9999AAAA,
+    BootError = 0xBBBBCCCC,
 
-    BadCodeAddr   = 0xdeadbeef,
-    BadCodeCksum  = 0xfeedface,
+    BadCodeAddr = 0xdeadbeef,
+    BadCodeCksum = 0xfeedface,
 }
 
 uint get_uint() {
@@ -45,10 +45,10 @@ void put_uint(uint u) {
     uart.tx((u >> 24) & 0xff);
 }
 
-extern(C) extern __gshared ubyte _kheap_start;
+extern (C) extern __gshared ubyte _kheap_start;
 
-extern(C) extern __gshared ubyte __start_copyin;
-extern(C) extern __gshared ubyte __stop_copyin;
+extern (C) extern __gshared ubyte __start_copyin;
+extern (C) extern __gshared ubyte __stop_copyin;
 
 void boot() {
     while (true) {
@@ -98,7 +98,7 @@ void memcpy(ubyte* dst, ubyte* src, long nbytes) {
     }
 }
 
-extern(C) void kmain() {
+extern (C) void kmain() {
     uart.init(115200);
     boot();
     put_uint(BootFlags.BootError);

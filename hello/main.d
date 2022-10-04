@@ -19,6 +19,6 @@ void hello() {
     sys.reboot();
 }
 
-extern(C) void kmain() {
+extern (C) void kmain() {
     hello();
 }

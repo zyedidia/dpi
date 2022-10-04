@@ -19,16 +19,16 @@ struct AuxPeriphs {
     uint baud;
 }
 
-enum enable_uart   = 1;
-enum rx_enable     = 1 << 0;
-enum tx_enable     = 1 << 1;
+enum enable_uart = 1;
+enum rx_enable = 1 << 0;
+enum tx_enable = 1 << 1;
 enum clear_tx_fifo = 1 << 1;
 enum clear_rx_fifo = 1 << 2;
-enum clear_fifos   = clear_tx_fifo | clear_rx_fifo;
-enum iir_reset     = (0b11 << 6) | 1;
+enum clear_fifos = clear_tx_fifo | clear_rx_fifo;
+enum iir_reset = (0b11 << 6) | 1;
 
-enum aux_enables = cast(uint*) (mmio.base + 0x215004);
-enum uart = cast(AuxPeriphs*) (mmio.base + 0x215040);
+enum aux_enables = cast(uint*)(mmio.base + 0x215004);
+enum uart = cast(AuxPeriphs*)(mmio.base + 0x215040);
 
 void init(uint baud) {
     gpio.set_func(gpio.PinType.tx, gpio.FuncType.alt5);
@@ -59,7 +59,8 @@ bool can_tx() {
 
 ubyte rx() {
     sys.dsb();
-    while (rx_empty()) {}
+    while (rx_empty()) {
+    }
     ubyte c = mmio.ld(&uart.io) & 0xff;
     sys.dsb();
     return c;
@@ -67,7 +68,8 @@ ubyte rx() {
 
 void tx(ubyte c) {
     sys.dsb();
-    while (!can_tx()) {}
+    while (!can_tx()) {
+    }
     mmio.st(&uart.io, c & 0xff);
     sys.dsb();
 }
@@ -78,5 +80,6 @@ bool tx_empty() {
 }
 
 void tx_flush() {
-    while (!tx_empty()) {}
+    while (!tx_empty()) {
+    }
 }

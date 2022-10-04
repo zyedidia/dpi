@@ -21,10 +21,10 @@ enum FuncType {
 }
 
 enum base = 0x200000;
-enum fsel = cast(uint*) (mmio.base + base);
-enum set  = cast(uint*) (mmio.base + base + 0x1C);
-enum clr  = cast(uint*) (mmio.base + base + 0x28);
-enum lev  = cast(uint*) (mmio.base + base + 0x34);
+enum fsel = cast(uint*)(mmio.base + base);
+enum set = cast(uint*)(mmio.base + base + 0x1C);
+enum clr = cast(uint*)(mmio.base + base + 0x28);
+enum lev = cast(uint*)(mmio.base + base + 0x34);
 
 void set_func(uint pin, FuncType fn) {
     if (pin >= 32)

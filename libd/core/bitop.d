@@ -42,22 +42,20 @@ nothrow:
  * They may be used to guarantee a write or read cycle occurs at a specified address.
  */
 
-ubyte  volatileLoad(ubyte * ptr);
-ushort volatileLoad(ushort* ptr);  /// ditto
-uint   volatileLoad(uint  * ptr);  /// ditto
-ulong  volatileLoad(ulong * ptr);  /// ditto
+ubyte volatileLoad(ubyte* ptr);
+ushort volatileLoad(ushort* ptr); /// ditto
+uint volatileLoad(uint* ptr); /// ditto
+ulong volatileLoad(ulong* ptr); /// ditto
 
-void volatileStore(ubyte * ptr, ubyte  value);   /// ditto
-void volatileStore(ushort* ptr, ushort value);   /// ditto
-void volatileStore(uint  * ptr, uint   value);   /// ditto
-void volatileStore(ulong * ptr, ulong  value);   /// ditto
+void volatileStore(ubyte* ptr, ubyte value); /// ditto
+void volatileStore(ushort* ptr, ushort value); /// ditto
+void volatileStore(uint* ptr, uint value); /// ditto
+void volatileStore(ulong* ptr, ulong value); /// ditto
 
-@system unittest
-{
+@system unittest {
     alias TT(T...) = T;
 
-    foreach (T; TT!(ubyte, ushort, uint, ulong))
-    {
+    foreach (T; TT!(ubyte, ushort, uint, ulong)) {
         T u;
         T* p = &u;
         volatileStore(p, 1);

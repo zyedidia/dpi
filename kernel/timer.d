@@ -14,7 +14,8 @@ void delay_us(uint us) {
         asm {
             "mrs %0, cntpct_el0" : "=r"(r);
         }
-    } while (r < t);
+    }
+    while (r < t);
 }
 
 void delay_ms(uint ms) {

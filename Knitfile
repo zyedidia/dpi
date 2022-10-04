@@ -31,6 +31,7 @@ local gdb := gdb-multiarch
 
 local prog = cli.prog or "hello"
 local kernel = include(f"$prog/build.knit").rules(tools, flags)
+local allsrc = knit.rglob(".", "*.d")
 
 return r{
 $ all: $prog.bin
@@ -57,4 +58,7 @@ $ qemu-gdb:VB: $prog.elf
 
 $ prog:VB: $prog.bin
     sudo piprog $input
+
+$ format:VB:
+    dfmt -i --brace_style=otbs $allsrc
 }
