@@ -1,13 +1,15 @@
 local knit = import("knit")
-local src = knit.glob("*.d")
 
 local kernel = {}
 
-function kernel.rules(tools, flags)
-    local src = src
-    return r{
-    $ kernel.o: $src
-        $(tools.dc) $(flags.dc) $input -c -o $output
+function kernel.build(arch, board)
+    local src = knit.glob("kernel/*.d")
+    local arch = knit.glob(f"kernel/arch/$arch/*.d")
+    local board = knit.glob(f"kernel/board/$board/*.d")
+
+    return {
+        files = knit.join(knit.join(src, arch), board),
+        packages = {"-Ikernel", f"-Ikernel/arch/$arch", f"-Ikernel/board/$board"}
     }
 end
 
