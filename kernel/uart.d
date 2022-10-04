@@ -53,6 +53,10 @@ bool rx_empty() {
     return bits.get(mmio.ld(&uart.stat), 0) == 0;
 }
 
+uint rx_sz() {
+    return bits.get(mmio.ld(&uart.stat), 19, 16);
+}
+
 bool can_tx() {
     return bits.get(mmio.ld(&uart.stat), 1) != 0;
 }

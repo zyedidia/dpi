@@ -34,7 +34,7 @@ local kernel = include(f"$prog/build.knit").rules(tools, flags)
 local allsrc = knit.rglob(".", "*.d")
 
 return r{
-$ all: $prog.bin
+$ all: $prog.bin $prog.list
 $ %.o: %.d
     $(tools.dc) $(flags.dc) $input -c -o $output
 $ %.o: %.s
