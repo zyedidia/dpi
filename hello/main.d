@@ -1,4 +1,4 @@
-module kernel.main;
+module hello.main;
 
 import core.bitop;
 
@@ -6,7 +6,7 @@ import timer = kernel.timer;
 import uart = kernel.uart;
 import sys = kernel.sys;
 
-void kmain() {
+void hello() {
     uart.init(115200);
 
     uart.tx('H');
@@ -17,4 +17,8 @@ void kmain() {
     uart.tx('\n');
 
     sys.reboot();
+}
+
+extern(C) void kmain() {
+    hello();
 }

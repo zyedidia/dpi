@@ -29,10 +29,11 @@ local qemu := qemu-system-$archid
 local board := raspi3b
 local gdb := gdb-multiarch
 
-local kernel = include("kernel/build.knit").rules(tools, flags)
+local prog = cli.prog or "hello"
+local kernel = include(f"$prog/build.knit").rules(tools, flags)
 
 return r{
-$ all: kernel.bin
+$ all: $prog.bin
 $ %.o: %.d
     $(tools.dc) $(flags.dc) $input -c -o $output
 $ %.o: %.s
@@ -43,13 +44,17 @@ $ %.list: %.elf
     $(tools.objdump) -D $input > $output
 $ %.list: %.o
     $(tools.objdump) -D $input > $output
-$ kernel/kernel.o: [$kernel][kernel]kernel.o
-$ kernel.elf: kernel/kernel.o dstart.o start.o
+
+$ $prog/$prog.o:M: [$kernel][$prog]$prog.o
+$ $prog.elf: $prog/$prog.o dstart.o start.o
     $(tools.ld) $(flags.ld) $input -o $output
 
-$ qemu:VB: kernel.elf
+$ qemu:VB: $prog.elf
     $qemu -M $board -nographic -kernel $input -serial null -serial mon:stdio -no-reboot
-$ qemu-gdb:VB: kernel.elf
+$ qemu-gdb:VB: $prog.elf
     $qemu -s -S -M $board -nographic -kernel $input -serial null -serial mon:stdio -no-reboot &
     $gdb -ex "file $input" -ex "target remote localhost:1234"
+
+$ prog:VB: $prog.bin
+    sudo piprog $input
 }

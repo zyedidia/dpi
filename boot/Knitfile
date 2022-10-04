@@ -1,8 +1,0 @@
-return r{
-$ boot.o: boot.d dstart.d crc32.d
-    aarch64-none-elf-gdc -Os -fno-bounds-check -o boot.o -c dstart.d boot.d ../libd/object.d ../kernel/timer.d ../kernel/uart.d ../kernel/mmio.d -I../libd ../kernel/gpio.d ../kernel/sys.d ../kernel/bits.d crc32.d
-$ boot.elf: boot.o ../start.o
-    aarch64-none-elf-ld -T link.ld $input --no-warn-rwx-segments -o $output
-$ %.bin: %.elf
-    aarch64-none-elf-objcopy $input -O binary $output
-}

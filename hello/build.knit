@@ -1,0 +1,14 @@
+local hello = {}
+
+local knit = import("knit")
+local src = knit.join(knit.glob("*.d"), knit.glob("../kernel/*.d"))
+
+function hello.rules(tools, flags)
+    local src = src
+    return r{
+    $ hello.o: $src
+        $(tools.dc) $(flags.dc) -c $input -o $output
+    }
+end
+
+return hello

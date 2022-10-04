@@ -19,13 +19,13 @@ struct AuxPeriphs {
     uint baud;
 }
 
-const enable_uart   = 1;
-const rx_enable     = 1 << 0;
-const tx_enable     = 1 << 1;
-const clear_tx_fifo = 1 << 1;
-const clear_rx_fifo = 1 << 2;
-const clear_fifos   = clear_tx_fifo | clear_rx_fifo;
-const iir_reset     = (0b11 << 6) | 1;
+immutable enable_uart   = 1;
+immutable rx_enable     = 1 << 0;
+immutable tx_enable     = 1 << 1;
+immutable clear_tx_fifo = 1 << 1;
+immutable clear_rx_fifo = 1 << 2;
+immutable clear_fifos   = clear_tx_fifo | clear_rx_fifo;
+immutable iir_reset     = (0b11 << 6) | 1;
 
 private uint* aux_enables() { return cast(uint*) (mmio.base + 0x215004); }
 private AuxPeriphs* uart()  { return cast(AuxPeriphs*) (mmio.base + 0x215040); }

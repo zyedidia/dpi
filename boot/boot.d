@@ -1,8 +1,12 @@
 module boot.main;
 
+import gcc.attribute;
+
+import core.bitop;
 import timer = kernel.timer;
 import uart = kernel.uart;
 import crc = boot.crc32;
+import sys = kernel.sys;
 
 enum BootFlags {
     BootStart = 0xFFFF0000,
@@ -22,7 +26,7 @@ enum BootFlags {
 
 uint get_uint() {
     union recv {
-        char[4] b;
+        ubyte[4] b;
         uint i;
     }
 
@@ -41,7 +45,12 @@ void put_uint(uint u) {
     uart.tx((u >> 24) & 0xff);
 }
 
-void* boot() {
+extern(C) extern __gshared ubyte _kheap_start;
+
+extern(C) extern __gshared ubyte __start_copyin;
+extern(C) extern __gshared ubyte __stop_copyin;
+
+void boot() {
     while (true) {
         put_uint(BootFlags.GetProgInfo);
         timer.delay_ms(200);
@@ -51,7 +60,7 @@ void* boot() {
         }
     }
 
-    char* base = cast(char*) get_uint();
+    ubyte* base = cast(ubyte*) get_uint();
     uint nbytes = get_uint();
     uint crc_recv = get_uint();
 
@@ -59,30 +68,48 @@ void* boot() {
     put_uint(crc_recv);
 
     if (get_uint() != BootFlags.PutCode) {
-        return null;
+        return;
     }
 
+    ubyte* heap = &_kheap_start;
     for (uint i = 0; i < nbytes; i++) {
-        base[i] = uart.rx();
+        volatileStore(&heap[i], uart.rx());
     }
-    uint crc_calc = crc.crc32(base, nbytes);
+    uint crc_calc = crc.crc32(heap, nbytes);
     if (crc_calc != crc_recv) {
         put_uint(BootFlags.BadCodeCksum);
-        return null;
+        return;
     }
     put_uint(BootFlags.BootSuccess);
-
     uart.tx_flush();
-    return cast(void*)base;
+
+    // move copyin to heap+nbytes;
+    ubyte* new_copyin = heap + nbytes + (nbytes % 8) + 16;
+    long copyin_size = &__stop_copyin - &__start_copyin;
+    memcpy(new_copyin, cast(ubyte*)&copyin, copyin_size);
+    // call the new copyin that has been moved
+    auto fn = cast(void function(ubyte*, ubyte*, uint)) new_copyin;
+    fn(base, heap, nbytes);
 }
 
-void boot_start() {
-    uart.init(115200);
+void memcpy(ubyte* dst, ubyte* src, long nbytes) {
+    for (uint i = 0; i < nbytes; i++) {
+        volatileStore(&dst[i], src[i]);
+    }
+}
 
-    void* code = boot();
-    uart.tx_flush();
-    if (code) {
-        auto main = cast(void function()) code;
+extern(C) void kmain() {
+    uart.init(115200);
+    boot();
+    put_uint(BootFlags.BootError);
+}
+
+@attribute("section", "copyin") {
+    void copyin(ubyte* dst, ubyte* src, uint nbytes) {
+        for (uint i = 0; i < nbytes; i++) {
+            dst[i] = src[i];
+        }
+        auto main = cast(void function()) dst;
         main();
     }
 }

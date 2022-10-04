@@ -1,0 +1,14 @@
+local boot = {}
+
+local knit = import("knit")
+local src = knit.join(knit.glob("*.d"), knit.glob("../kernel/*.d"))
+
+function boot.rules(tools, flags)
+    local src = src
+    return r{
+    $ boot.o: $src
+        $(tools.dc) $(flags.dc) -fno-reorder-functions -c $input -o $output
+    }
+end
+
+return boot

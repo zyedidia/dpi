@@ -20,7 +20,7 @@ enum FuncType {
     alt5 = 2,
 }
 
-const uint base = 0x200000;
+immutable uint base = 0x200000;
 
 private uint* fsel() { return cast(uint*) (mmio.base + base); }
 private uint* set()  { return cast(uint*) (mmio.base + base + 0x1C); }
