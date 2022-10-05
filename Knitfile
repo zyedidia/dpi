@@ -64,8 +64,8 @@ if conf.release then
 end
 
 local flags = {
-    dc := -O$O -g -nostartfiles -Wa,-mcpu=$(platform.mcpu) -Wa,-march=$(platform.march) $versions $flto $frelease
-    as := -mcpu=$(platform.mcpu) -march=$(platform.march)
+    dc := -nophoboslib -fno-exceptions -fno-moduleinfo -fno-rtti -O$O -g -nostartfiles -Wa,-mcpu=$(platform.mcpu) -Wa,-march=$(platform.march) $versions $flto $frelease
+    as := -Wa,-mcpu=$(platform.mcpu) -Wa,-march=$(platform.march) $flto
     -- using gdc as linker for LTO
     ld := -fno-druntime -T $link -Wl,--no-warn-rwx-segments $flto
 }
@@ -86,7 +86,7 @@ $ all: $prog.bin $prog.list
 $ %.o: %.d
     $(tools.dc) $(flags.dc) $(libd.packages) $input -c -o $output
 $ %.o: %.s
-    $(tools.cpp) $input | $(tools.as) $(flags.as) -c -o $output
+    $(tools.dc) $(flags.as) -xassembler-with-cpp $input -c -o $output
 $ %.bin: %.elf
     $(tools.objcopy) $input -O binary $output
 $ %.list: %.elf
