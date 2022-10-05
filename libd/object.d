@@ -9,9 +9,8 @@ bool _xopEquals(in void*, in void*) {
 }
 
 extern (C) void[] _d_arraycopy(size_t size, void[] from, void[] to) {
-	import std.memory : memmove;
+    import std.memory : memmove;
 
-	memmove(to.ptr, from.ptr, from.length * size);
-	return to;
+    memmove(to.ptr, from.ptr, from.length * size);
+    return to;
 }
-

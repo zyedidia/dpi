@@ -23,7 +23,7 @@ size_t itoa(S)(S num, char* buf, size_t len, uint base = 10) if (isNumber!S) {
 
     do {
         auto rem = num % base;
-        buf[--pos] = cast(char) ((rem > 9) ? (rem-10) + 'a' : rem + '0');
+        buf[--pos] = cast(char)((rem > 9) ? (rem - 10) + 'a' : rem + '0');
         num /= base;
     }
     while (num);
@@ -88,7 +88,7 @@ private:
     }
 }
 
-__gshared File uartf = { putc:&uart.tx };
+__gshared File uartf = {putc: &uart.tx};
 
 void write(Args...)(Args args) {
     uartf.write(args);

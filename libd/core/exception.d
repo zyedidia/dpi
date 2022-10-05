@@ -27,7 +27,8 @@ void _arraybounds(string file, uint line) {
 
 // Called when an out of range slice of an array is created.
 void _arraybounds_slice(string file, uint line, size_t lower, size_t upper, size_t length) {
-    panic(file, ":", line, ": invalid slice [", lower, " .. ", upper, "] of array of length ", length);
+    panic(file, ":", line, ": invalid slice [", lower, " .. ", upper,
+            "] of array of length ", length);
 }
 
 // Called when an out of range array index is accessed.
