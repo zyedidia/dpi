@@ -54,17 +54,17 @@ local versions = {
     f"-fversion=$(conf.board)",
 }
 
-local lto = true
-if cli.lto ~= nil then
-    lto = tobool(cli.lto)
-end
 local flto = ""
-if lto then
+if conf.lto then
     flto = "-flto"
+end
+local frelease = ""
+if conf.release then
+    frelease = "-frelease"
 end
 
 local flags = {
-    dc := -O$O -g -nostartfiles -Wa,-mcpu=$(platform.mcpu) -Wa,-march=$(platform.march) $versions $flto
+    dc := -O$O -g -nostartfiles -Wa,-mcpu=$(platform.mcpu) -Wa,-march=$(platform.march) $versions $flto $frelease
     as := -mcpu=$(platform.mcpu) -march=$(platform.march)
     -- using gdc as linker for LTO
     ld := -fno-druntime -T $link -Wl,--no-warn-rwx-segments $flto
@@ -74,7 +74,7 @@ local flags = {
 local qemu := qemu-system-$(platform.archid)
 local gdb := gdb-multiarch
 
-local prog = cli.prog or "hello"
+local prog = conf.prog
 local kernel = dofile("kernel/build.knit").build(platform.archid, platform.boardid)
 local main = dofile(f"$prog/build.knit")
 local libd = dofile("libd/build.knit")
