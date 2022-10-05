@@ -54,11 +54,20 @@ local versions = {
     f"-fversion=$(conf.board)",
 }
 
+local lto = true
+if cli.lto ~= nil then
+    lto = tobool(cli.lto)
+end
+local flto = ""
+if lto then
+    flto = "-flto"
+end
+
 local flags = {
-    dc := -O$O -g -nostartfiles -fno-druntime -Wa,-mcpu=$(platform.mcpu) -Wa,-march=$(platform.march) $versions -flto
+    dc := -O$O -g -nostartfiles -Wa,-mcpu=$(platform.mcpu) -Wa,-march=$(platform.march) $versions $flto
     as := -mcpu=$(platform.mcpu) -march=$(platform.march)
     -- using gdc as linker for LTO
-    ld := -T $link -Wl,--no-warn-rwx-segments -flto
+    ld := -fno-druntime -T $link -Wl,--no-warn-rwx-segments $flto
 }
 
 -- Use Ctrl-A x to quit qemu
@@ -90,7 +99,7 @@ $ $prog/$prog.o:M: $(main.files)
 $ kernel/kernel.o:M: $(kernel.files)
     $(tools.dc) $(flags.dc) $(kernel.packages) $(libd.packages) $input -c -o $output
 $ libd/libd.o:M: $(libd.files)
-    $(tools.dc) $(flags.dc) $(libd.packages) $input -c -o $output
+    $(tools.dc) $(flags.dc) $(libd.packages) $(kernel.packages) $input -c -o $output
 $ $prog.elf: $prog/$prog.o kernel/kernel.o libd/libd.o dstart.o arch/$(platform.archid)/start.o
     $(tools.dc) $(flags.dc) $(flags.ld) $input -o $output
 

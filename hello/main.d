@@ -6,19 +6,12 @@ import timer = kernel.timer;
 import uart = kernel.uart;
 import sys = kernel.sys;
 
-void hello() {
-    uart.init(115200);
-
-    uart.tx('H');
-    uart.tx('e');
-    uart.tx('l');
-    uart.tx('l');
-    uart.tx('o');
-    uart.tx('\n');
-
-    sys.reboot();
-}
+import io = std.stdio;
 
 extern (C) void kmain() {
-    hello();
+    uart.init(115200);
+
+    io.write("Hello world", 42, "\n");
+
+    sys.reboot();
 }
