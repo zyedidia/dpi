@@ -3,6 +3,7 @@
 *.list
 *.bin
 .knit
+*.pdf
 
 questions.txt
 todo.txt

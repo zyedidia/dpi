@@ -1,8 +1,5 @@
 module hello.main;
 
-import core.bitop;
-
-import timer = kernel.timer;
 import uart = kernel.uart;
 import sys = kernel.sys;
 

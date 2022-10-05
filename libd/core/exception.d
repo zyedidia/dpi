@@ -16,6 +16,11 @@ void __switch_errorT()(string file = __FILE__, size_t line = __LINE__) @trusted 
 }
 
 // Called when an assert() fails.
+void _assert_msg(string msg, string file, uint line) {
+    panic(file, ":", line, ": ", msg);
+}
+
+// Called when an assert() fails.
 void _assert(string file, uint line) {
     panic(file, ":", line, ": assertion failure");
 }
@@ -38,7 +43,7 @@ void _arraybounds_index(string file, uint line, size_t index, size_t length) {
 
 extern (C) {
     void _d_assert_msg(string msg, string file, uint line) {
-        panic(file, ":", line, ": ", msg);
+        _assert_msg(msg, file, line);
     }
 
     void _d_assert(string file, uint line) {
@@ -55,5 +60,13 @@ extern (C) {
 
     void _d_arraybounds_index(string file, uint line, size_t index, size_t length) {
         _arraybounds_index(file, line, index, length);
+    }
+
+    void _d_unittest(string file, uint line) {
+        _assert(file, line);
+    }
+
+    void _d_unittest_msg(string msg, string file, uint line) {
+        _assert_msg(msg, file, line);
     }
 }

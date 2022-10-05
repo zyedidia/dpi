@@ -64,7 +64,7 @@ if conf.release then
 end
 
 local flags = {
-    dc := -nophoboslib -fno-exceptions -fno-moduleinfo -fno-rtti -O$O -g -nostartfiles -Wa,-mcpu=$(platform.mcpu) -Wa,-march=$(platform.march) $versions $flto $frelease
+    dc := -fno-exceptions -fno-rtti -O$O -g -nostartfiles -Wa,-mcpu=$(platform.mcpu) -Wa,-march=$(platform.march) $versions $flto $frelease -funittest
     as := -Wa,-mcpu=$(platform.mcpu) -Wa,-march=$(platform.march) $flto
     -- using gdc as linker for LTO
     ld := -fno-druntime -T $link -Wl,--no-warn-rwx-segments $flto
@@ -99,7 +99,7 @@ $ $prog/$prog.o:M: $(main.files)
 $ kernel/kernel.o:M: $(kernel.files)
     $(tools.dc) $(flags.dc) $(kernel.packages) $(libd.packages) $input -c -o $output
 $ libd/libd.o:M: $(libd.files)
-    $(tools.dc) $(flags.dc) $(libd.packages) $(kernel.packages) $input -c -o $output
+    $(tools.dc) $(flags.dc) $(kernel.packages) $(libd.packages) $input -c -o $output
 $ $prog.elf: $prog/$prog.o kernel/kernel.o libd/libd.o dstart.o arch/$(platform.archid)/start.o
     $(tools.dc) $(flags.dc) $(flags.ld) $input -o $output
 

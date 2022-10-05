@@ -51,15 +51,3 @@ void volatileStore(ubyte* ptr, ubyte value); /// ditto
 void volatileStore(ushort* ptr, ushort value); /// ditto
 void volatileStore(uint* ptr, uint value); /// ditto
 void volatileStore(ulong* ptr, ulong value); /// ditto
-
-@system unittest {
-    alias TT(T...) = T;
-
-    foreach (T; TT!(ubyte, ushort, uint, ulong)) {
-        T u;
-        T* p = &u;
-        volatileStore(p, 1);
-        T r = volatileLoad(p);
-        assert(r == u);
-    }
-}

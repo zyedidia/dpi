@@ -1,0 +1,6 @@
+local knit = import("knit")
+
+return {
+    files = knit.glob("test/*.d"),
+    packages = {"-Itest"}
+}
