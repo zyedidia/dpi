@@ -11,7 +11,8 @@ import io = std.stdio;
 extern (C) void kmain() {
     uart.init(115200);
 
-    io.write("Hello world", 42, "\n");
+    const x = 42;
+    io.write("Hello world", x, "\n");
 
     sys.reboot();
 }

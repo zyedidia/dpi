@@ -2,7 +2,7 @@ module std.stdio;
 
 import uart = kernel.uart;
 
-import std.trait;
+import std.traits;
 import std.algorithm;
 
 string itoa(S)(S num, char[] buf, uint base = 10) if (isNumber!S) {
@@ -10,7 +10,8 @@ string itoa(S)(S num, char[] buf, uint base = 10) if (isNumber!S) {
     return cast(string) buf[n .. $];
 }
 
-size_t itoa(S)(S num, char* buf, size_t len, uint base = 10) if (isNumber!S) {
+size_t itoa(S)(S s, char* buf, size_t len, uint base = 10) if (isNumber!S) {
+    auto num = s;
     size_t pos = len;
     bool sign = false;
 
@@ -41,7 +42,8 @@ public:
 
     void write(Args...)(Args args) {
         foreach (arg; args) {
-            write(arg);
+            alias T = typeof(arg);
+            write(cast(Unqual!T)arg);
         }
     }
 
