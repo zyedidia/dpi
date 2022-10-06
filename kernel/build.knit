@@ -3,6 +3,10 @@ local knit = import("knit")
 local kernel = {}
 
 function kernel.build(arch, board)
+    if board == "raspi1ap" or board == "raspi3b" or board  == "raspi4b" then
+        board = "raspi"
+    end
+
     local src = knit.glob("kernel/*.d")
     local arch = knit.glob(f"kernel/arch/$arch/*.d")
     local board = knit.glob(f"kernel/board/$board/*.d")

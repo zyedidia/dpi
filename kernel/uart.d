@@ -1,6 +1,8 @@
 module kernel.uart;
 
-version (raspi) import uart = kernel.board.raspi.uart;
+version (raspi1ap) import uart = kernel.board.raspi.uart;
+version (raspi3b) import uart = kernel.board.raspi.uart;
+version (raspi4b) import uart = kernel.board.raspi.uart;
 
 alias init = uart.init;
 alias rx = uart.rx;

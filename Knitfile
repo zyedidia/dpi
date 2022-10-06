@@ -5,26 +5,21 @@ local platforms = {
         mcpu = "arm1176jzf-s",
         march = "armv6zk",
         archid = "arm",
-        boardid = "raspi",
     },
     raspi3b = {
         mcpu = "cortex-a53",
         march = "armv8-a",
         archid = "aarch64",
-        boardid = "raspi",
     },
     raspi4b = {
         mcpu = "cortex-a72",
         march = "armv8-a+crc",
         archid = "aarch64",
-        boardid = "raspi",
     },
     rv32 = {
         march = "rv32im",
         mabi = "ilp32",
         archid = "riscv32",
-        boardid = "raspi",
-        board = "raspi1ap",
     }
 }
 
@@ -33,10 +28,6 @@ local platform = platforms[conf.board]
 if platform == nil then
     print("unknown board: " .. conf.board)
     return r{}
-end
-
-if platform.board ~= nil then
-    conf.board = platform.board
 end
 
 local prefixes = {
@@ -59,10 +50,9 @@ local tools = {
 }
 
 local O = "s"
-local link = "link.ld"
+local link = "board/$(conf.board)/link.ld"
 
 local versions = {
-    f"-fversion=$(platform.boardid)",
     f"-fversion=$(conf.board)",
 }
 
@@ -97,7 +87,7 @@ local flags = {
 local qemu := qemu-system-$(platform.archid)
 local gdb := gdb-multiarch
 
-local kernel = dofile("kernel/build.knit").build(platform.archid, platform.boardid)
+local kernel = dofile("kernel/build.knit").build(platform.archid, conf.board)
 local libd = dofile("libd/build.knit")
 
 local allsrc = knit.rglob(".", "*.d")
@@ -137,9 +127,9 @@ for _, prog in ipairs(progs) do
 end
 
 rules =  rules + r{
-$ qemu:VB: $prog.elf
+$ qemu:VB: $(conf.prog).elf
     $qemu -M $(conf.board) -nographic -kernel $input -serial null -serial mon:stdio -no-reboot
-$ qemu-gdb:VB: $prog.elf
+$ qemu-gdb:VB: $(conf.prog).elf
     $qemu -s -S -M $(conf.board) -nographic -kernel $input -serial null -serial mon:stdio -no-reboot &
     $gdb -ex "file $input" -ex "target remote localhost:1234"
 
