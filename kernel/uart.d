@@ -6,3 +6,4 @@ alias init = uart.init;
 alias rx = uart.rx;
 alias tx = uart.tx;
 alias tx_flush = uart.tx_flush;
+alias rx_empty = uart.rx_empty;

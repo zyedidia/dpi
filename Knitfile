@@ -97,15 +97,13 @@ local flags = {
 local qemu := qemu-system-$(platform.archid)
 local gdb := gdb-multiarch
 
-local prog = conf.prog
 local kernel = dofile("kernel/build.knit").build(platform.archid, platform.boardid)
-local main = dofile(f"$prog/build.knit")
 local libd = dofile("libd/build.knit")
 
 local allsrc = knit.rglob(".", "*.d")
 
-return r{
-$ all: $prog.bin $prog.list
+local rules = r{
+$ all: $(conf.prog).bin $(conf.prog).list
 $ %.o: %.d
     $(tools.dc) $(flags.dc) $(libd.packages) $input -c -o $output
 $ %.o: %.s
@@ -116,25 +114,40 @@ $ %.list: %.elf
     $(tools.objdump) -D $input > $output
 $ %.list: %.o
     $(tools.objdump) -D $input > $output
-
-$ $prog/$prog.o:M: $(main.files)
-    $(tools.dc) $(flags.dc) $(main.packages) $(kernel.packages) $(libd.packages) $input -c -o $output
 $ kernel/kernel.o:M: $(kernel.files)
     $(tools.dc) $(flags.dc) $(kernel.packages) $(libd.packages) $input -c -o $output
 $ libd/libd.o:M: $(libd.files)
     $(tools.dc) $(flags.dc) $(kernel.packages) $(libd.packages) $input -c -o $output
-$ $prog.elf: $prog/$prog.o kernel/kernel.o libd/libd.o dstart.o arch/$(platform.archid)/start.o
-    $(tools.dc) $(flags.dc) $(flags.ld) $input -o $output
+}
 
+local progs = {
+    "hello",
+    "boot",
+    "test",
+}
+
+for _, prog in ipairs(progs) do
+    local main = dofile(f"$prog/build.knit")
+    rules = rules + r{
+    $ $prog/$prog.o:M: $(main.files)
+        $(tools.dc) $(flags.dc) $(main.packages) $(kernel.packages) $(libd.packages) $input -c -o $output
+    $ $prog.elf: $prog/$prog.o kernel/kernel.o libd/libd.o dstart.o arch/$(platform.archid)/start.o
+        $(tools.dc) $(flags.dc) $(flags.ld) $input -o $output
+    }
+end
+
+rules =  rules + r{
 $ qemu:VB: $prog.elf
     $qemu -M $(conf.board) -nographic -kernel $input -serial null -serial mon:stdio -no-reboot
 $ qemu-gdb:VB: $prog.elf
     $qemu -s -S -M $(conf.board) -nographic -kernel $input -serial null -serial mon:stdio -no-reboot &
     $gdb -ex "file $input" -ex "target remote localhost:1234"
 
-$ prog:VB: $prog.bin
+$ prog:VB: $(conf.prog).bin
     sudo piprog $input
 
 $ format:VB:
     dfmt -i --brace_style=otbs $allsrc
 }
+
+return rules

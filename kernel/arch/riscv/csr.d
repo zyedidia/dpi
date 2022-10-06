@@ -1,5 +1,7 @@
 module kernel.arch.riscv32.csr;
 
+// A common interface for accessing RISC-V CSRs.
+
 enum Reg {
     mcycle = 0xb00,
     mcycleh = 0xb80,
