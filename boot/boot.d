@@ -49,8 +49,8 @@ void put_uint(uint u) {
 
 extern (C) extern __gshared ubyte _kheap_start;
 
-extern (C) extern __gshared ubyte __start_copyin;
-extern (C) extern __gshared ubyte __stop_copyin;
+extern (C) extern shared ubyte __start_copyin;
+extern (C) extern shared ubyte __stop_copyin;
 
 void boot() {
     while (true) {
