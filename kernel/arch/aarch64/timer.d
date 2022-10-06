@@ -1,5 +1,7 @@
 module kernel.arch.aarch64.timer;
 
+void init() {}
+
 void delay_us(uint us) {
     ulong f, t, r;
     // get the current counter frequency

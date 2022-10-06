@@ -1,12 +1,13 @@
 module hello.main;
 
-import uart = kernel.uart;
 import sys = kernel.sys;
+
+static import kernel;
 
 import io = std.stdio;
 
 extern (C) void kmain() {
-    uart.init(115200);
+    kernel.init();
 
     const x = 42;
     io.write("Hello world", x, "\n");

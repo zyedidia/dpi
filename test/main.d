@@ -1,8 +1,8 @@
 module test.main;
 
-import uart = kernel.uart;
 import sys = kernel.sys;
-import ktests = kernel.tests;
+
+static import kernel;
 
 import io = std.stdio;
 
@@ -18,10 +18,10 @@ void runtests(tests...)() {
 }
 
 extern (C) void kmain() {
-    uart.init(115200);
+    kernel.init();
 
-    alias tests = __traits(getUnitTests, ktests);
-    runtests!tests();
+    alias tkernel = __traits(getUnitTests, kernel);
+    runtests!tkernel();
 
     sys.reboot();
 }

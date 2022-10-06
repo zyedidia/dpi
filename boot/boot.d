@@ -8,6 +8,8 @@ import uart = kernel.uart;
 import crc = boot.crc32;
 import sys = kernel.sys;
 
+static import kernel;
+
 enum BootFlags {
     BootStart = 0xFFFF0000,
 
@@ -99,7 +101,7 @@ void memcpy(ubyte* dst, ubyte* src, long nbytes) {
 }
 
 extern (C) void kmain() {
-    uart.init(115200);
+    kernel.init();
     boot();
     put_uint(BootFlags.BootError);
 }
