@@ -1,6 +1,7 @@
 module kernel.arch.aarch64.timer;
 
-void init() {}
+void init() {
+}
 
 void delay_us(uint us) {
     ulong f, t, r;

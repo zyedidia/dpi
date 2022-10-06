@@ -1,7 +1,9 @@
 module kernel.gpio;
 
 version (raspi1ap) import gpio = kernel.board.raspi.gpio;
+
 version (raspi3b) import gpio = kernel.board.raspi.gpio;
+
 version (raspi4b) import gpio = kernel.board.raspi.gpio;
 
 alias set_output = gpio.set_output;

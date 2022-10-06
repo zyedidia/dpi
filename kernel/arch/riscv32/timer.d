@@ -3,7 +3,8 @@ module kernel.arch.riscv32.timer;
 import csr = kernel.arch.riscv.csr;
 import sys = kernel.sys;
 
-void init() {}
+void init() {
+}
 
 uint cycles() {
     return csr.read!(csr.Reg.mcycle)();

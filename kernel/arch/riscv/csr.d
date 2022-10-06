@@ -9,13 +9,13 @@ enum Reg {
 
 void write(Reg reg)(uintptr val) {
     asm {
-        "csrw %0, %1" :: "i"(reg) "r"(val);
+        "csrw %0, %1" :  : "i"(reg) "r"(val);
     }
 }
 
 void write(Reg reg, int val)() if (val < 32) {
     asm {
-        "csrwi %0, %1" :: "i"(reg) "I"(val);
+        "csrwi %0, %1" :  : "i"(reg) "I"(val);
     }
 }
 

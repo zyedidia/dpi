@@ -55,7 +55,9 @@ void read(uint dev_addr, char* data, int data_len) {
     while (!(mmio.ld(&i2c.status) & status_fifo_empty)) {
     }
     // clear previous transfer's flags
-    mmio.st(&i2c.status, mmio.ld(&i2c.status) | status_transfer_done | status_error_peripheral_ack | status_timeout);
+    mmio.st(&i2c.status,
+            mmio.ld(
+                &i2c.status) | status_transfer_done | status_error_peripheral_ack | status_timeout);
 
     // set device address + data length
     mmio.st(&i2c.dev_addr, dev_addr);
@@ -67,21 +69,22 @@ void read(uint dev_addr, char* data, int data_len) {
 
     timer.delay_us(norm_delay);
     // keep reading until transfer is complete
-    while ((mmio.ld(&i2c.status) & status_fifo_can_read) &&
-            (!(mmio.ld(&i2c.status) & status_transfer_done) ||
-             (data_index < data_len))) {
+    while ((mmio.ld(&i2c.status) & status_fifo_can_read)
+            && (!(mmio.ld(&i2c.status) & status_transfer_done) || (data_index < data_len))) {
         timer.delay_us(40);
         data[data_index++] = cast(ubyte) mmio.ld(&i2c.data_fifo);
     }
 }
 
-void write(uint dev_addr, char *data, int data_len) {
+void write(uint dev_addr, char* data, int data_len) {
     // clear out the FIFO
     mmio.st(&i2c.ctrl, mmio.ld(&i2c.ctrl) | ctrl_clear_fifo);
     while (!(mmio.ld(&i2c.status) & status_fifo_empty)) {
     }
     // clear previous transfer's flags
-    mmio.st(&i2c.status, mmio.ld(&i2c.status) | status_transfer_done | status_error_peripheral_ack | status_timeout);
+    mmio.st(&i2c.status,
+            mmio.ld(
+                &i2c.status) | status_transfer_done | status_error_peripheral_ack | status_timeout);
 
     // set peripheral address + data length
     mmio.st(&i2c.dev_addr, dev_addr);
@@ -89,8 +92,7 @@ void write(uint dev_addr, char *data, int data_len) {
     int data_index = 0;
 
     // write first 16 chunks into FIFO
-    while ((data_index < fifo_max_size) &&
-            (data_index < data_len)) {
+    while ((data_index < fifo_max_size) && (data_index < data_len)) {
         mmio.st(&i2c.data_fifo, data[data_index++]);
     }
 
@@ -99,9 +101,8 @@ void write(uint dev_addr, char *data, int data_len) {
     mmio.st(&i2c.ctrl, mmio.ld(&i2c.ctrl) | ctrl_start);
 
     // as fifo clears up, continue transferring until done
-    while (!(mmio.ld(&i2c.status) & status_transfer_done) &&
-            (mmio.ld(&i2c.status) & status_fifo_can_write) &&
-            (data_index < data_len)) {
+    while (!(mmio.ld(&i2c.status) & status_transfer_done)
+            && (mmio.ld(&i2c.status) & status_fifo_can_write) && (data_index < data_len)) {
         mmio.st(&i2c.data_fifo, data[data_index++]);
     }
 
