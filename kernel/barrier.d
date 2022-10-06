@@ -1,5 +1,7 @@
 module kernel.barrier;
 
-version (AArch64) public import kernel.arch.aarch64.barrier;
+version (AArch64) import barrier = kernel.arch.aarch64.barrier;
 
-version (ARM) public import kernel.arch.arm.barrier;
+version (ARM) import barrier = kernel.arch.arm.barrier;
+
+alias dsb = barrier.dsb;

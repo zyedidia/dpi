@@ -1,6 +1,7 @@
 module kernel.sys;
 
-version (raspi)
-    public import kernel.board.raspi.sys;
-else
-    static assert(false, "unknown board");
+version (raspi) import sys = kernel.board.raspi.sys;
+
+alias gpu_freq = sys.gpu_freq;
+alias core_freq = sys.core_freq;
+alias reboot = sys.reboot;

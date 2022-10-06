@@ -4,6 +4,7 @@ import barrier = kernel.barrier;
 import bits = kernel.bits;
 import mmio = kernel.mmio;
 import timer = kernel.timer;
+import device = kernel.board.raspi.device;
 import gpio = kernel.board.raspi.gpio;
 import sys = kernel.board.raspi.sys;
 
@@ -36,7 +37,7 @@ enum status_timeout = 0x200;
 
 enum fifo_max_size = 16;
 
-enum i2c = cast(Regs*)(mmio.base + 0x804000);
+enum i2c = cast(Regs*)(device.base + 0x804000);
 
 void init() {
     gpio.set_func(gpio.PinType.sda, gpio.FuncType.alt0);

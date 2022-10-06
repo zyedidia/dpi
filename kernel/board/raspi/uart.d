@@ -3,6 +3,7 @@ module kernel.board.raspi.uart;
 import barrier = kernel.barrier;
 import bits = kernel.bits;
 import mmio = kernel.mmio;
+import device = kernel.board.raspi.device;
 import gpio = kernel.board.raspi.gpio;
 import sys = kernel.board.raspi.sys;
 
@@ -28,8 +29,8 @@ enum clear_rx_fifo = 1 << 2;
 enum clear_fifos = clear_tx_fifo | clear_rx_fifo;
 enum iir_reset = (0b11 << 6) | 1;
 
-enum aux_enables = cast(uint*)(mmio.base + 0x215004);
-enum uart = cast(AuxPeriphs*)(mmio.base + 0x215040);
+enum aux_enables = cast(uint*)(device.base + 0x215004);
+enum uart = cast(AuxPeriphs*)(device.base + 0x215040);
 
 void init(uint baud) {
     gpio.set_func(gpio.PinType.tx, gpio.FuncType.alt5);
@@ -46,7 +47,7 @@ void init(uint baud) {
     mmio.st(&uart.lcr, 0b11);
     mmio.st(&uart.mcr, 0);
     mmio.st(&uart.iir, iir_reset | clear_fifos);
-    mmio.st(&uart.baud, sys.core_freq / (baud * 8) - 1);
+    mmio.st(&uart.baud, sys.gpu_freq / (baud * 8) - 1);
     mmio.st(&uart.cntl, rx_enable | tx_enable);
 
     barrier.dsb();

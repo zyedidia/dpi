@@ -3,16 +3,26 @@ module kernel.board.raspi.sys;
 import uart = kernel.uart;
 import mmio = kernel.mmio;
 import sys = kernel.barrier;
+import device = kernel.board.raspi.device;
 
-version (raspi1ap) enum core_freq = 250 * 1000 * 1000;
-version (raspi3b) enum core_freq = 250 * 1000 * 1000;
-version (raspi4b) enum core_freq = 250 * 1000 * 1000;
+version (raspi1ap) {
+    enum gpu_freq = 250 * 1000 * 1000;
+    enum core_freq = 700 * 1000 * 1000;
+}
+version (raspi3b) {
+    enum gpu_freq = 250 * 1000 * 1000;
+    enum core_freq = 700 * 1000 * 1000;
+}
+version (raspi4b) {
+    enum gpu_freq = 250 * 1000 * 1000;
+    enum core_freq = 700 * 1000 * 1000;
+}
 
 void reboot() {
     uart.tx_flush();
     sys.dsb();
-    uint* pm_rstc = cast(uint*)(mmio.base + 0x10001c);
-    uint* pm_wdog = cast(uint*)(mmio.base + 0x100024);
+    uint* pm_rstc = cast(uint*)(device.base + 0x10001c);
+    uint* pm_wdog = cast(uint*)(device.base + 0x100024);
 
     const pm_password = 0x5a000000;
     const pm_rstc_wrcfg_full_reset = 0x20;
