@@ -43,7 +43,7 @@ public:
     void write(Args...)(Args args) {
         foreach (arg; args) {
             alias T = typeof(arg);
-            write(cast(Unqual!T)arg);
+            write(cast(Unqual!T) arg);
         }
     }
 

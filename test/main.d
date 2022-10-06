@@ -10,7 +10,7 @@ void runtests(tests...)() {
     io.writeln("running ", tests.length, " tests...");
 
     foreach (i, t; tests) {
-        io.writeln("test ", i, "...");
+        io.writeln("test ", i + 1, "...");
         t();
     }
 
