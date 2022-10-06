@@ -4,7 +4,7 @@ import uart = kernel.uart;
 import mmio = kernel.mmio;
 import sys = kernel.barrier;
 
-version (raspi1ap) enum core_freq = 700 * 1000 * 1000;
+version (raspi1ap) enum core_freq = 250 * 1000 * 1000;
 version (raspi3b) enum core_freq = 250 * 1000 * 1000;
 version (raspi4b) enum core_freq = 250 * 1000 * 1000;
 

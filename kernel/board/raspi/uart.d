@@ -35,6 +35,8 @@ void init(uint baud) {
     gpio.set_func(gpio.PinType.tx, gpio.FuncType.alt5);
     gpio.set_func(gpio.PinType.rx, gpio.FuncType.alt5);
 
+    barrier.dsb();
+
     mmio.st(aux_enables, mmio.ld(aux_enables) | enable_uart);
 
     barrier.dsb();
