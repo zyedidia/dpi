@@ -1,6 +1,6 @@
 module kernel.board.raspi.uart;
 
-import barrier = kernel.barrier;
+import cpu = kernel.cpu;
 import bits = kernel.bits;
 import mmio = kernel.mmio;
 import device = kernel.board.raspi.device;
@@ -36,11 +36,11 @@ void init(uint baud) {
     gpio.set_func(gpio.PinType.tx, gpio.FuncType.alt5);
     gpio.set_func(gpio.PinType.rx, gpio.FuncType.alt5);
 
-    barrier.dsb();
+    cpu.dsb();
 
     mmio.st(aux_enables, mmio.ld(aux_enables) | enable_uart);
 
-    barrier.dsb();
+    cpu.dsb();
 
     mmio.st(&uart.cntl, 0);
     mmio.st(&uart.ier, 0);
@@ -50,7 +50,7 @@ void init(uint baud) {
     mmio.st(&uart.baud, sys.gpu_freq / (baud * 8) - 1);
     mmio.st(&uart.cntl, rx_enable | tx_enable);
 
-    barrier.dsb();
+    cpu.dsb();
 }
 
 bool rx_empty() {
@@ -66,24 +66,24 @@ bool can_tx() {
 }
 
 ubyte rx() {
-    barrier.dsb();
+    cpu.dsb();
     while (rx_empty()) {
     }
     ubyte c = mmio.ld(&uart.io) & 0xff;
-    barrier.dsb();
+    cpu.dsb();
     return c;
 }
 
 void tx(ubyte c) {
-    barrier.dsb();
+    cpu.dsb();
     while (!can_tx()) {
     }
     mmio.st(&uart.io, c & 0xff);
-    barrier.dsb();
+    cpu.dsb();
 }
 
 bool tx_empty() {
-    barrier.dsb();
+    cpu.dsb();
     return bits.get(mmio.ld(&uart.stat), 9) == 1;
 }
 

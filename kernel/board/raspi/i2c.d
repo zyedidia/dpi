@@ -1,6 +1,6 @@
 module kernel.board.raspi.i2c;
 
-import barrier = kernel.barrier;
+import cpu = kernel.cpu;
 import bits = kernel.bits;
 import mmio = kernel.mmio;
 import timer = kernel.timer;
@@ -42,9 +42,9 @@ enum i2c = cast(Regs*)(device.base + 0x804000);
 void init() {
     gpio.set_func(gpio.PinType.sda, gpio.FuncType.alt0);
     gpio.set_func(gpio.PinType.scl, gpio.FuncType.alt0);
-    barrier.dsb();
+    cpu.dsb();
     mmio.st(&i2c.ctrl, ctrl_enable);
-    barrier.dsb();
+    cpu.dsb();
 }
 
 enum norm_delay = 500;

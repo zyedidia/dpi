@@ -2,7 +2,7 @@ module kernel.board.raspi.sys;
 
 import uart = kernel.uart;
 import mmio = kernel.mmio;
-import sys = kernel.barrier;
+import sys = kernel.cpu;
 import device = kernel.board.raspi.device;
 
 version (raspi1ap) {

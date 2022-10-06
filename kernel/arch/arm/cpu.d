@@ -1,4 +1,4 @@
-module kernel.arch.arm.barrier;
+module kernel.arch.arm.cpu;
 
 void dsb() {
     asm {

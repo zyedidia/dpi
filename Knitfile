@@ -121,7 +121,7 @@ for _, prog in ipairs(progs) do
     rules = rules + r{
     $ $prog/$prog.o:M: $(main.files)
         $(tools.dc) $(flags.dc) $(main.packages) $(kernel.packages) $(libd.packages) $input -c -o $output
-    $ $prog.elf: $prog/$prog.o kernel/kernel.o libd/libd.o dstart.o arch/$(platform.archid)/start.o
+    $ $prog.elf: $prog/$prog.o kernel/kernel.o libd/libd.o arch/$(platform.archid)/start.o
         $(tools.dc) $(flags.dc) $(flags.ld) $input -o $output
     }
 end

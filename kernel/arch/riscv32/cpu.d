@@ -1,4 +1,4 @@
-module kernel.arch.riscv32.barrier;
+module kernel.arch.riscv32.cpu;
 
 void dsb() {
     asm {
