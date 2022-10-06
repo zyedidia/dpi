@@ -1,12 +1,12 @@
 module kernel.arch.riscv32.timer;
 
-import kernel.arch.riscv.csr;
+import csr = kernel.arch.riscv.csr;
 import sys = kernel.sys;
 
 void init() {}
 
 uint cycles() {
-    return Csr!(Reg.mcycle).read();
+    return csr.read!(csr.Reg.mcycle)();
 }
 
 void delay_us(uint us) {
