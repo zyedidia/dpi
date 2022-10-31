@@ -1,4 +1,4 @@
-local knit = import("knit")
+local knit = require("knit")
 
 local src = knit.rglob("libd", "*.d")
 

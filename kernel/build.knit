@@ -1,4 +1,4 @@
-local knit = import("knit")
+local knit = require("knit")
 
 local kernel = {}
 
@@ -12,7 +12,7 @@ function kernel.build(arch, board)
     local board = knit.glob(f"kernel/board/$board/*.d")
 
     return {
-        files = knit.join(knit.join(src, arch), board),
+        files = src + arch + board,
         packages = {"-Ikernel", f"-Ikernel/arch/$arch", f"-Ikernel/board/$board"}
     }
 end
