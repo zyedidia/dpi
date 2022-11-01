@@ -42,9 +42,13 @@ local prefixes = {
 
 local prefix = prefixes[platform.archid]
 
+function sel(cond, t, f)
+    if cond then return t else return f end
+end
+
 local tools = {
+    dc = sel(conf.dc == "gdc", f"$prefix-gdc", "ldc2"),
     cc := $prefix-gcc
-    dc := $prefix-gdc
     as := $prefix-as
     ld := $prefix-ld
     cpp := $prefix-cpp
@@ -55,32 +59,50 @@ local tools = {
 local O = "s"
 local link = "board/$(conf.board)/link.ld"
 
-local versions = {
-    f"-fversion=$(conf.board)",
-}
-
 local flto = ""
+local release = ""
+local mflags = ""
+local dcflags = ""
 if conf.lto then
     flto = "-flto"
 end
-local frelease = ""
-if conf.release then
-    frelease = "-frelease"
-end
 
-local mflags = ""
-if platform.mcpu ~= nil then
-    mflags = mflags .. f" -mcpu=$(platform.mcpu)"
-end
-if platform.march ~= nil then
-    mflags = mflags .. f" -march=$(platform.march)"
-end
-if platform.mabi ~= nil then
-    mflags = mflags .. f" -mabi=$(platform.mabi)"
+if conf.dc == "gdc" then
+    local versions = {
+        f"-fversion=$(conf.board)",
+    }
+    if conf.release then
+        release = "-frelease"
+    end
+    if platform.mcpu ~= nil then
+        mflags = mflags .. f" -mcpu=$(platform.mcpu)"
+    end
+    if platform.march ~= nil then
+        mflags = mflags .. f" -march=$(platform.march)"
+    end
+    if platform.mabi ~= nil then
+        mflags = mflags .. f" -mabi=$(platform.mabi)"
+    end
+    dcflags := -fno-exceptions -fno-rtti -O$O -g -nostartfiles $mflags $versions $flto $release -funittest
+else
+    local versions = {
+        f"--d-version=$(conf.board)",
+    }
+    if conf.lto then
+        lto = "--flto=full"
+    end
+    if conf.release then
+        release = "--release"
+    end
+    if platform.mcpu ~= nil then
+        mflags = mflags .. f" -mcpu=$(platform.mcpu)"
+    end
+    mflags = mflags .. f" -mtriple=$prefix"
+    dcflags := --betterC --unittest -O$O -g $mflags $versions $lto $release -defaultlib=
 end
 
 local flags = {
-    dc := -fno-exceptions -fno-rtti -O$O -g -nostartfiles $mflags $versions $flto $frelease -funittest
+    dc = dcflags,
     as := $mflags $flto
     -- using gdc as linker for LTO
     ld := -fno-druntime -T $link -Wl,--no-warn-rwx-segments $flto
@@ -95,10 +117,12 @@ local libd = dofile("libd/build.knit")
 
 local allsrc = knit.rglob(".", "*.d")
 
+local dco = sel(conf.dc == "gdc", "-o", "-of")
+
 local rules = r{
 $ all: $(conf.prog).bin $(conf.prog).list
 $ %.o: %.d
-    $(tools.dc) $(flags.dc) $(libd.packages) $input -c -o $output
+    $(tools.dc) $(flags.dc) $(libd.packages) $input -c $dco $output
 $ %.o: %.s
     $(tools.cc) $(flags.as) -xassembler-with-cpp $input -c -o $output
 $ %.bin: %.elf
@@ -108,9 +132,9 @@ $ %.list: %.elf
 $ %.list: %.o
     $(tools.objdump) -D $input > $output
 $ kernel/kernel.o:M: $(kernel.files)
-    $(tools.dc) $(flags.dc) $(kernel.packages) $(libd.packages) $input -c -o $output
+    $(tools.dc) $(flags.dc) $(kernel.packages) $(libd.packages) $input -c $dco $output
 $ libd/libd.o:M: $(libd.files)
-    $(tools.dc) $(flags.dc) $(kernel.packages) $(libd.packages) $input -c -o $output
+    $(tools.dc) $(flags.dc) $(kernel.packages) $(libd.packages) $input -c $dco $output
 }
 
 local progs = {
@@ -123,7 +147,7 @@ for _, prog in ipairs(progs) do
     local main = dofile(f"$prog/build.knit")
     rules = rules + r{
     $ $prog/$prog.o:M: $(main.files)
-        $(tools.dc) $(flags.dc) $(main.packages) $(kernel.packages) $(libd.packages) $input -c -o $output
+        $(tools.dc) $(flags.dc) $(main.packages) $(kernel.packages) $(libd.packages) $input -c $dco $output
     $ $prog.elf: $prog/$prog.o kernel/kernel.o libd/libd.o arch/$(platform.archid)/start.o
         $(tools.dc) $(flags.dc) $(flags.ld) $input -o $output
     }

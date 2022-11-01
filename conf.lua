@@ -6,4 +6,5 @@ return {
     lto = lto,
     release = tobool(cli.release) or false,
     prog = cli.prog or "hello",
+    dc = cli.dc or "gdc",
 }
