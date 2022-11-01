@@ -85,7 +85,7 @@ do
         mflags = mflags .. f" -mabi=$(platform.mabi)"
     end
     if conf.dc == "gdc" then
-        dcflags := -fno-exceptions -fno-rtti -O$O -g -nostartfiles $mflags $versions $flto $release -funittest
+        dcflags := -fno-exceptions -fno-rtti -O$O -g -nostartfiles $mflags $versions $flto $release -funittest -ffunction-sections -fdata-sections
     end
     asflags := $mflags $flto
 end
@@ -107,14 +107,14 @@ if conf.dc ~= "gdc" then
         mflags = mflags .. f" -mcpu=$(platform.mcpu)"
     end
     mflags = mflags .. f" -mtriple=$prefix"
-    dcflags := --betterC --unittest -O$O -g $mflags $versions $lto $release -nodefaultlib
+    dcflags := --betterC --unittest -O$O -g $mflags $versions $lto $release -nodefaultlib --function-sections --data-sections
 end
 
 local flags = {
     dc = dcflags,
     as = asflags,
     -- using gdc as linker for LTO
-    ld := -nostdlib -nodefaultlibs -T $link -Wl,--no-warn-rwx-segments $flto
+    ld := -nostdlib -nodefaultlibs -T$link -Wl,--no-warn-rwx-segments $flto -Wl,--gc-sections
 }
 
 -- Use Ctrl-A x to quit qemu
@@ -130,8 +130,6 @@ local dco = sel(conf.dc == "gdc", "-o", "-of")
 
 local rules = r{
 $ all: $(conf.prog).bin $(conf.prog).list
-$ %.o: %.d
-    $(tools.dc) $(flags.dc) $(libd.packages) $input -c $dco $output
 $ %.o: %.s
     $(tools.cc) $(flags.as) -xassembler-with-cpp $input -c -o $output
 $ %.bin: %.elf
@@ -140,10 +138,6 @@ $ %.list: %.elf
     $(tools.objdump) -D $input > $output
 $ %.list: %.o
     $(tools.objdump) -D $input > $output
-$ kernel/kernel.o:M: $(kernel.files)
-    $(tools.dc) $(flags.dc) $(kernel.packages) $(libd.packages) $input -c $dco $output
-$ libd/libd.o:M: $(libd.files)
-    $(tools.dc) $(flags.dc) $(kernel.packages) $(libd.packages) $input -c $dco $output
 }
 
 local progs = {
@@ -155,9 +149,9 @@ local progs = {
 for _, prog in ipairs(progs) do
     local main = dofile(f"$prog/build.knit")
     rules = rules + r{
-    $ $prog/$prog.o:M: $(main.files)
+    $ $prog/$prog.o:M: $(main.files) $(kernel.files) $(libd.files)
         $(tools.dc) $(flags.dc) $(main.packages) $(kernel.packages) $(libd.packages) $input -c $dco $output
-    $ $prog.elf: $prog/$prog.o kernel/kernel.o libd/libd.o arch/$(platform.archid)/start.o
+    $ $prog.elf: $prog/$prog.o arch/$(platform.archid)/start.o
         $(tools.cc) $(flags.as) $(flags.ld) $input -o $output
     }
 end

@@ -1,4 +1,4 @@
-local lto = true
+local lto = false
 if cli.lto ~= nil then lto = tobool(cli.lto) end
 
 return {
