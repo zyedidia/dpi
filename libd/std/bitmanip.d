@@ -9,5 +9,5 @@ size_t msb(uint x) {
 }
 
 size_t msb(ulong x) {
-    return x ? x.sizeof * 8 - __builtin_clzl(x) : 0;
+    return x ? x.sizeof * 8 - __builtin_clzll(x) : 0;
 }

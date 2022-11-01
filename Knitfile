@@ -165,6 +165,9 @@ $ prog:VB: $(conf.prog).bin
 
 $ format:VB:
     dfmt -i --brace_style=otbs $allsrc
+$ clean:VB:
+    knit :all -t clean
+    rm -f *.bin
 }
 
 return b{rules}
