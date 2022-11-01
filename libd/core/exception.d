@@ -69,4 +69,11 @@ extern (C) {
     void _d_unittest_msg(string msg, string file, uint line) {
         _assert_msg(msg, file, line);
     }
+
+    void __assert(const(char)* msg, const(char)* file, int line) {
+        import std.memory : strlen;
+        string smsg = cast(string) msg[0 .. strlen(msg)];
+        string sfile = cast(string) file[0 .. strlen(file)];
+        _assert_msg(smsg, sfile, line);
+    }
 }

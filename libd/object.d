@@ -16,9 +16,19 @@ bool _xopEquals(in void*, in void*) {
     return false;
 }
 
-extern (C) void[] _d_arraycopy(size_t size, void[] from, void[] to) {
-    import std.memory : memmove;
+extern (C):
 
-    memmove(to.ptr, from.ptr, from.length * size);
-    return to;
+version (LDC) {
+    void _d_array_slice_copy(void* dst, size_t dstlen, void* src, size_t srclen, size_t elemsz)
+    {
+        import std.memory : memmove;
+        memmove(dst, src, dstlen * elemsz);
+    }
+} else {
+    void[] _d_arraycopy(size_t size, void[] from, void[] to) {
+        import std.memory : memmove;
+        memmove(to.ptr, from.ptr, from.length * size);
+        return to;
+    }
 }
+

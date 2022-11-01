@@ -56,21 +56,22 @@ local tools = {
     objdump := $prefix-objdump
 }
 
-local O = "s"
+local O = sel(conf.dc == "gdc", "s", "z")
 local link = "board/$(conf.board)/link.ld"
 
-local flto = ""
-local release = ""
-local mflags = ""
 local dcflags = ""
-if conf.lto then
-    flto = "-flto"
-end
+local asflags = ""
 
-if conf.dc == "gdc" then
+do
+    local flto = ""
+    local release = ""
+    local mflags = ""
     local versions = {
         f"-fversion=$(conf.board)",
     }
+    if conf.lto then
+        flto = "-flto"
+    end
     if conf.release then
         release = "-frelease"
     end
@@ -83,13 +84,21 @@ if conf.dc == "gdc" then
     if platform.mabi ~= nil then
         mflags = mflags .. f" -mabi=$(platform.mabi)"
     end
-    dcflags := -fno-exceptions -fno-rtti -O$O -g -nostartfiles $mflags $versions $flto $release -funittest
-else
+    if conf.dc == "gdc" then
+        dcflags := -fno-exceptions -fno-rtti -O$O -g -nostartfiles $mflags $versions $flto $release -funittest
+    end
+    asflags := $mflags $flto
+end
+
+if conf.dc ~= "gdc" then
+    local release = ""
+    local mflags = ""
+    local lto = ""
     local versions = {
         f"--d-version=$(conf.board)",
     }
     if conf.lto then
-        lto = "--flto=full"
+        lto = "-Xcc -flto"
     end
     if conf.release then
         release = "--release"
@@ -98,14 +107,14 @@ else
         mflags = mflags .. f" -mcpu=$(platform.mcpu)"
     end
     mflags = mflags .. f" -mtriple=$prefix"
-    dcflags := --betterC --unittest -O$O -g $mflags $versions $lto $release -defaultlib=
+    dcflags := --betterC --unittest -O$O -g $mflags $versions $lto $release -nodefaultlib
 end
 
 local flags = {
     dc = dcflags,
-    as := $mflags $flto
+    as = asflags,
     -- using gdc as linker for LTO
-    ld := -fno-druntime -T $link -Wl,--no-warn-rwx-segments $flto
+    ld := -nostdlib -nodefaultlibs -T $link -Wl,--no-warn-rwx-segments $flto
 }
 
 -- Use Ctrl-A x to quit qemu
@@ -149,7 +158,7 @@ for _, prog in ipairs(progs) do
     $ $prog/$prog.o:M: $(main.files)
         $(tools.dc) $(flags.dc) $(main.packages) $(kernel.packages) $(libd.packages) $input -c $dco $output
     $ $prog.elf: $prog/$prog.o kernel/kernel.o libd/libd.o arch/$(platform.archid)/start.o
-        $(tools.dc) $(flags.dc) $(flags.ld) $input -o $output
+        $(tools.cc) $(flags.as) $(flags.ld) $input -o $output
     }
 end
 

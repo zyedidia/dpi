@@ -1,5 +1,7 @@
 module std.memory;
 
+extern (C):
+
 void* memcpy(void* dst, void* src, size_t n) nothrow {
     char* s = cast(char*) src;
     for (char* d = cast(char*) dst; n > 0; --n, ++s, ++d) {
@@ -29,4 +31,12 @@ void* memset(void* v, char c, size_t n) nothrow {
         *p = cast(char) c;
     }
     return v;
+}
+
+size_t strlen(const(char)* s) nothrow {
+    size_t n;
+    for (n = 0; *s != '\0'; ++s) {
+        ++n;
+    }
+    return n;
 }
